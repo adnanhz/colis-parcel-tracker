@@ -1,0 +1,26 @@
+1. As a user, I want to be able to login with my account, so I can use the order tracking system.
+
+2. As a user, I want to be able to CRUD products, so I can use them for ordering.
+
+3. As a user, I want to be able to CRUD delivery states, so I can update orders accordingly.
+
+4. As a user, I want to be able to create orders, so I can use the tracking feature.
+
+5. As a user, I want to be able to change the status of an order, so I can update it with its real-life state.
+
+6. As a user, I want to be able to see who and when the status of an order was changed, so I can know what's happening with an order.
+
+7. As a user, I want to be able to know that an order had its status changed, so that I don't think it suddenly disappeared from the list of orders.
+
+8. As a user, I want to be able to export to excel a list of orders, so I can use it for statistics.
+
+9. As a user, I want to be able to filter the list of orders by date, so I can find a range of orders between two dates.
+
+10. As a user, I want to be able to filter the list of orders by client info, so I can find orders of a specific client.
+
+11. As a user, I want to be able to filter the list of orders for a client in a date ranger at once.
+
+12. As a user, I want to be able to enter a manual identification number for each order.
+
+13. As a user, I want to be able to search an order by its manual identification number.
+
