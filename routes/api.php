@@ -19,4 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::middleware(['prefix' => 'api'])->group(function(){
     Route::get('orders', 'OrderController@index');
+    Route::get('orders/{id}', 'OrderController@show');
 });

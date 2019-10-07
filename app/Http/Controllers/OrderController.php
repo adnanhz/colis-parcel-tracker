@@ -25,55 +25,31 @@ class OrderController extends Controller
         $stateId = $request->stateId;
         $orders = Order::query();
 
-        if($stateId != null) {
+        if ($stateId != null) {
             $state = OrderPossibleState::find($stateId);
-            $orders = $state->orders(); 
-        }        
-        if($startDate != null) {
+            $orders = $state->orders();
+        }
+        if ($startDate != null) {
             $startDate = Carbon::parse($startDate, "UTC");
             $startDate->setTime(23, 59, 59);
             $orders = $orders->where("created_at", ">=", $startDate);
         }
-        if($endDate != null) {
+        if ($endDate != null) {
             $endDate = Carbon::parse($endDate, "UTC");
             $endDate->setTime(23, 59, 59);
             $orders = $orders->where("created_at", "<=", $endDate);
         }
-        if($clientName != null) {
-            $orders = $orders->where("client_name", "LIKE", "%".$clientName."%");
+        if ($clientName != null) {
+            $orders = $orders->where("client_name", "LIKE", "%" . $clientName . "%");
         }
-        if($clientPhone != null) {
-            $orders = $orders->where("client_phone", "LIKE", "%".$clientPhone."%");
+        if ($clientPhone != null) {
+            $orders = $orders->where("client_phone", "LIKE", "%" . $clientPhone . "%");
         }
-        if($customId != null) {
+        if ($customId != null) {
             $orders = $orders->where("custom_id", "LIKE", $customId);
         }
         $orders = $orders->get();
         return response()->json(["orders" => $orders]);
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // for demo
-        $order = Order::create([
-            'user_placed' => 1,
-            'client_name' => "Ahmed",
-            "client_phone" => "34923490",
-            "client_address" => "Testy"
-        ]);
-        $product = Product::create([
-            'name' => "Test",
-            "price" => 100.5,
-            "description" => "Hello World"
-        ]);
-
-        $order->products()->attach($product, ['one_item_price' => 100.5, 'quantity' => 5]);
     }
 
     /**
@@ -84,7 +60,21 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $order = Order::create([
+            'user_placed' => Auth::user()->id,
+            'client_name' => $request->clientName,
+            "client_phone" => $request->clientPhone,
+            "client_address" => $request->clientAddress,
+            "additional_info" => $request->additionalInfo
+        ]);
+        $product = Product::find($request->productId);
+        $quantity = $request->quantity;
+        $order->products()->attach($product, [
+            'one_item_price' => $product->price,
+            'quantity' => $quantity
+        ]);
+
+        return response()->json(["result" => "success"]);
     }
 
     /**
@@ -95,7 +85,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json(["order" => Order::find($id)]);
     }
 
     /**
