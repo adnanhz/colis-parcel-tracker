@@ -45,10 +45,8 @@ class OrderController extends Controller
         }
         $orders = $orders->get();
         if ($stateId != null) {
-            $orders = array_filter($orders->toArray(), function($order) use ($stateId) {
-                $order = (object) $order;
-                return $order->currentState['id'] == $stateId;
-            });
+            $state = OrderPossibleState::find($stateId);
+            $orders = $state->ordersWithThisStateAsCurrent();
         }
         return response()->json(["orders" => $orders]);
     }
