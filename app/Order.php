@@ -17,9 +17,9 @@ class Order extends Model
         return $this->belongsTo("App\User");
     }
     public function states() {
-        return $this->belongsToMany("App\OrderPossibleState", "order_states", "user_id", "state_id");
+        return $this->belongsToMany("App\OrderPossibleState", "order_states", "order_id", "state_id");
     }
     public function getCurrentStateAttribute() {
-        return $this->states()->orderBy("created_at", "asc")->first();
+        return $this->states()->orderBy("order_states.created_at", "desc")->first();
     }
 }
