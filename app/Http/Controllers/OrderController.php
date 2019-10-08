@@ -24,11 +24,6 @@ class OrderController extends Controller
         $customId = $request->customId;
         $stateId = $request->stateId;
         $orders = Order::query();
-
-        if ($stateId != null) {
-            $state = OrderPossibleState::find($stateId);
-            $orders = $state->orders();
-        }
         if ($startDate != null) {
             $startDate = Carbon::parse($startDate, "UTC");
             $startDate->setTime(23, 59, 59);
@@ -49,6 +44,12 @@ class OrderController extends Controller
             $orders = $orders->where("custom_id", "LIKE", $customId);
         }
         $orders = $orders->get();
+        if ($stateId != null) {
+            $orders = array_filter($orders->toArray(), function($order) use ($stateId) {
+                $order = (object) $order;
+                return $order->currentState['id'] == $stateId;
+            });
+        }
         return response()->json(["orders" => $orders]);
     }
 
@@ -87,18 +88,6 @@ class OrderController extends Controller
     {
         return response()->json(["order" => Order::find($id)]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -108,7 +97,22 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $order = Order::find($id);
+        $order = $order->fill([
+            'client_name' => $request->clientName,
+            "client_phone" => $request->clientPhone,
+            "client_address" => $request->clientAddress,
+            "additional_info" => $request->additionalInfo
+        ]);
+        $order->save();
+        $product = Product::find($request->productId);
+        $quantity = $request->quantity;
+        $order->products()->attach($product, [
+            'one_item_price' => $product->price,
+            'quantity' => $quantity
+        ]);
+
+        return response()->json(["result" => "success"]);
     }
 
     /**
@@ -119,6 +123,7 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Order::find($id)->delete();
+        return response()->json(["result" => "success"]);
     }
 }
