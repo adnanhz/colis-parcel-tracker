@@ -1,12 +1,15 @@
 <template>
 <div>
-    <router-link to="/">Test</router-link>
+    <navbar />
     <router-view></router-view>
 </div>
 
 </template>
 <script>
+import Navbar from '@/js/components/Navbar';
 export default {
-    
+    components: {
+        Navbar
+    }
 }
 </script>
