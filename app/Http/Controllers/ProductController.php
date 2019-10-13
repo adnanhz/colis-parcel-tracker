@@ -8,7 +8,7 @@ use App\OrderPossibleState;
 use App\Product;
 use Carbon\Carbon;
 
-class OrderController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.

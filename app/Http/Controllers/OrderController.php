@@ -7,6 +7,7 @@ use App\Order;
 use App\OrderPossibleState;
 use App\Product;
 use Carbon\Carbon;
+use Auth;
 
 class OrderController extends Controller
 {
@@ -25,12 +26,12 @@ class OrderController extends Controller
         $stateId = $request->stateId;
         $orders = Order::query();
         if ($startDate != null) {
-            $startDate = Carbon::parse($startDate, "UTC");
-            $startDate->setTime(23, 59, 59);
+            $startDate = Carbon::parse($startDate);
+            $startDate->setTime(0, 0, 0);
             $orders = $orders->where("created_at", ">=", $startDate);
         }
         if ($endDate != null) {
-            $endDate = Carbon::parse($endDate, "UTC");
+            $endDate = Carbon::parse($endDate);
             $endDate->setTime(23, 59, 59);
             $orders = $orders->where("created_at", "<=", $endDate);
         }
@@ -45,8 +46,15 @@ class OrderController extends Controller
         }
         $orders = $orders->get();
         if ($stateId != null) {
-            $state = OrderPossibleState::find($stateId);
-            $orders = $state->ordersWithThisStateAsCurrent();
+            $ordersCopy = $orders;
+            $orders = [];
+            foreach($ordersCopy as $order) {
+                $currentState = $order->currentState;
+                if($currentState != null && $currentState->id == $stateId) {
+                    $orders[] = $order;
+                }
+            }
+            
         }
         return response()->json(["orders" => $orders]);
     }
@@ -64,7 +72,8 @@ class OrderController extends Controller
             'client_name' => $request->clientName,
             "client_phone" => $request->clientPhone,
             "client_address" => $request->clientAddress,
-            "additional_info" => $request->additionalInfo
+            "additional_info" => $request->additionalInfo,
+            "custom_id" => $request->customId
         ]);
         $product = Product::find($request->productId);
         $quantity = $request->quantity;
@@ -72,7 +81,8 @@ class OrderController extends Controller
             'one_item_price' => $product->price,
             'quantity' => $quantity
         ]);
-
+        $orderPossibleState = OrderPossibleState::where("title", "LIKE", "جديد")->first();
+        $order->states()->attach($orderPossibleState, ["user_id" => Auth::user()->id]);
         return response()->json(["result" => "success"]);
     }
 
@@ -100,7 +110,8 @@ class OrderController extends Controller
             'client_name' => $request->clientName,
             "client_phone" => $request->clientPhone,
             "client_address" => $request->clientAddress,
-            "additional_info" => $request->additionalInfo
+            "additional_info" => $request->additionalInfo,
+            "custom_id" => $request->customId
         ]);
         $order->save();
         $product = Product::find($request->productId);
@@ -109,7 +120,10 @@ class OrderController extends Controller
             'one_item_price' => $product->price,
             'quantity' => $quantity
         ]);
-
+        if($request->stateId) {
+            $orderPossibleState = OrderPossibleState::find($request->stateId);
+            $order->states()->attach($orderPossibleState, ["user_id" => Auth::user()->id]);
+        }
         return response()->json(["result" => "success"]);
     }
 
@@ -123,5 +137,10 @@ class OrderController extends Controller
     {
         Order::find($id)->delete();
         return response()->json(["result" => "success"]);
+    }
+
+    public function getOrderPossibleStates(){
+        $orderPossibleStates = OrderPossibleState::orderBy("order", "ASC")->get();
+        return response()->json(["orderPossibleStates" => $orderPossibleStates]);
     }
 }

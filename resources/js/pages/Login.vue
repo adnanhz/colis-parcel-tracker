@@ -36,7 +36,7 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { login, getAuthenticatedUser } from "../api.js";
+import { loginAsync, getAuthenticatedUserAsync } from "../api.js";
 export default {
   data() {
     return {
@@ -51,10 +51,10 @@ export default {
   },
   methods: {
     loginPressed() {
-      login(this.username, this.password).then(response => {
+      loginAsync(this.username, this.password).then(response => {
         if (response.body.access_token) {
           localStorage.setItem("access_token", response.body.access_token);
-          getAuthenticatedUser().then(response => {
+          getAuthenticatedUserAsync().then(response => {
             this.$store.dispatch("auth/setUser", { user: response.body });
             this.$router.push("/orders");
           });
