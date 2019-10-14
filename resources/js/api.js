@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
-const API_URL = window.host + "/api";
-const OAUTH_URL = window.host + "/oauth"
+const API_URL = window.laravel.HOST + "/api";
+const OAUTH_URL = window.laravel.HOST + "/oauth"
 
 export function loginAsync(username, password) {
     const payload = {};
