@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
-const API_URL = "http://localhost:8000/api";
-const OAUTH_URL = "http://localhost:8000/oauth"
+const API_URL = window.host + "/api";
+const OAUTH_URL = window.host + "/oauth"
 
 export function loginAsync(username, password) {
     const payload = {};
